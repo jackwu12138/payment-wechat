@@ -10,7 +10,7 @@ spring:
         time-zone: GMT+8
 
     datasource:
-        url: jdbc:mysql://127.0.0.1:3306/payment_demo?allowMultiQueries=true&useUnicode=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&nullCatalogMeansCurrent=true
+        url: jdbc:mysql://127.0.0.1:3306/payment_wechat?allowMultiQueries=true&useUnicode=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&nullCatalogMeansCurrent=true
         username: root
         password: root
         driver-class-name: com.mysql.cj.jdbc.Driver
