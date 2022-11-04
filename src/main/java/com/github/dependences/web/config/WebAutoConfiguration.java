@@ -46,7 +46,6 @@ public class WebAutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
-        log.info("properties: {}", properties);
         configurer.addPathPrefix(properties.getApiPrefix(),
                 c -> c.getPackage().getName().contains(properties.getBasePackage()));
     }

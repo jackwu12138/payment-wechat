@@ -29,14 +29,14 @@ public class CommonResult<T> implements Serializable {
 
     public static <T> CommonResult<T> success() {
         CommonResult<T> result = new CommonResult<>();
-        result.code = "0";
+        result.code = "SUCCESS";
         result.msg = "";
         return result;
     }
 
     public static <T> CommonResult<T> success(T data) {
         CommonResult<T> result = new CommonResult<>();
-        result.code = "0";
+        result.code = "SUCCESS";
         result.msg = "";
         result.data = data;
         return result;
@@ -44,7 +44,7 @@ public class CommonResult<T> implements Serializable {
 
     public static <T> CommonResult<T> error() {
         CommonResult<T> result = new CommonResult<>();
-        result.code = "500";
+        result.code = "ERROR";
         result.msg = "error";
         return result;
     }

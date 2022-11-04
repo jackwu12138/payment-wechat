@@ -19,7 +19,7 @@ public abstract class BaseDO implements Serializable {
      * 主键
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private String id;
+    private Long id;
 
     /**
      * 创建时间
