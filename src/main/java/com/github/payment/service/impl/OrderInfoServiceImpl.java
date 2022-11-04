@@ -1,6 +1,6 @@
-package com.github.payment.service.service.impl;
+package com.github.payment.service.impl;
 
-import com.github.payment.service.service.OrderInfoService;
+import com.github.payment.service.OrderInfoService;
 import org.springframework.stereotype.Service;
 
 /**

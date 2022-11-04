@@ -1,4 +1,4 @@
-package com.github.payment.service.service;
+package com.github.payment.service;
 
 
 /**

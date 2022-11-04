@@ -1,4 +1,4 @@
-package com.github.payment.service.service;
+package com.github.payment.service;
 
 /**
  * 订单信息的 service 接口

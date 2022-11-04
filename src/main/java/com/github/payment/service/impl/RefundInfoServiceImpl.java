@@ -1,6 +1,6 @@
-package com.github.payment.service.service.impl;
+package com.github.payment.service.impl;
 
-import com.github.payment.service.service.RefundInfoService;
+import com.github.payment.service.RefundInfoService;
 import org.springframework.stereotype.Service;
 
 /**
