@@ -1,4 +1,4 @@
-package com.github.payment.databject;
+package com.github.dependences.mybatisplus.core;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

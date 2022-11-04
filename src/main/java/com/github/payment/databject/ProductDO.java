@@ -1,6 +1,7 @@
 package com.github.payment.databject;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.github.dependences.mybatisplus.core.BaseDO;
 import lombok.*;
 
 /**

@@ -157,7 +157,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.3.7.RELEASE</version>
                 <configuration>
-                    <mainClass>com.github.payment.PaymentWechatApplication</mainClass>
+                    <mainClass>com.github.PaymentWechatApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

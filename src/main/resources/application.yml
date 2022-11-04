@@ -45,8 +45,40 @@ mybatis-plus:
     global-config:
         banner: false
 
+--- #==================== swagger 相关配置 ====================#
+
+web:
+    base-package: com.github.payment
+    api-prefix: /api
+
+--- #==================== swagger 相关配置 ====================#
+
+swagger:
+    title: 微信支付示例项目
+    description: 基于spring-boot的微信支付案例项目
+    version: 1.0.0
+    base-package: ${web.base-package}
+
+--- #==================== 微信支付相关配置 ====================#
+
+wxpay:
+    # 商户号
+    mch-id: 1558950191
+    # 商户API证书序列号
+    mch-serial-no: 34345964330B66427E0D3D28826C4993C77E631F
+    # 商户私钥文件
+    private-key-path: apiclient_key.pem
+    # APIv3密钥
+    api-v3-key: UDuLFDcmy5Eb6o0nTNZdu6ek4DDh4K8B
+    # APPID
+    appid: wx74862e0dfcf69954
+    # 微信服务器地址
+    domain: https://api.mch.weixin.qq.com
+    # 接收结果通知地址
+    notify-domain: https://4326-123-139-179-245.jp.ngrok.io
+
 logging:
     level:
-      com.github.payment: debug
+        com.github: debug
 
 
