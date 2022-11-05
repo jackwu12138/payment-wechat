@@ -32,4 +32,9 @@ public class ProductServiceImpl implements ProductService {
 
         return convertor.convertList(productList);
     }
+
+    @Override
+    public ProductDO getProductById(Long productId) {
+        return baseMapper.selectById(productId);
+    }
 }
