@@ -1,6 +1,10 @@
 package com.github.payment.service;
 
+import com.github.dependences.wechat.core.api.NativePayNotifyResponseDTO;
 import com.github.payment.controller.payment.vo.PrepaymentResponseVO;
+import org.springframework.http.ResponseEntity;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 支付的 service 接口
@@ -16,4 +20,12 @@ public interface PaymentService {
      * @return 预支付信息
      */
     PrepaymentResponseVO nativePrepayment(Long productId);
+
+    /**
+     * 支付成功后的回调接口
+     *
+     * @param request 微信发送的请求信息
+     * @return 响应给微信服务器的信息
+     */
+    ResponseEntity<NativePayNotifyResponseDTO> nativePaymentNotify(HttpServletRequest request);
 }

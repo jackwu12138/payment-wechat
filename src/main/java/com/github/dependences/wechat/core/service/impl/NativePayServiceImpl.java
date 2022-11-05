@@ -10,6 +10,8 @@ import com.github.dependences.wechat.config.WxPayProperties;
 import com.github.dependences.wechat.core.api.NativePayRequestDTO;
 import com.github.dependences.wechat.core.api.NativePayResponseDTO;
 import com.github.dependences.wechat.core.service.NativePayService;
+import com.github.dependences.wechat.core.util.WechatPay2ValidatorForRequest;
+import com.wechat.pay.contrib.apache.httpclient.auth.Verifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -19,6 +21,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -37,6 +40,8 @@ public class NativePayServiceImpl implements NativePayService {
     private final WxPayProperties properties;
 
     private final CloseableHttpClient wxPayHttpClient;
+
+    private final Verifier verifier;
 
     @Override
     public NativePayResponseDTO nativePay(NativePayRequestDTO param) {
@@ -58,6 +63,18 @@ public class NativePayServiceImpl implements NativePayService {
             return JSONUtil.toBean(body, NativePayResponseDTO.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean isRequestValidate(String body, String requestId, HttpServletRequest request) {
+        WechatPay2ValidatorForRequest validator =
+                new WechatPay2ValidatorForRequest(verifier, body, requestId);
+        try {
+            return validator.validate(request);
+        } catch (IOException e) {
+            log.error("解析签名出错");
+            return false;
         }
     }
 

@@ -1,5 +1,6 @@
 package com.github.payment.service;
 
+import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.payment.databject.OrderInfoDO;
 
 /**
@@ -23,4 +24,19 @@ public interface OrderInfoService {
      * @param orderInfo 要更新链接的二维码信息
      */
     void updateCodeUrl(OrderInfoDO orderInfo);
+
+    /**
+     * 付款成功后更新订单
+     *
+     * @param encryptedData 加密数据
+     */
+    void updateOrderWhenPaymentSuccess(NativeQueryResponseDTO encryptedData);
+
+    /**
+     * 根据订单号更新订单状态
+     *
+     * @param orderNo 订单号
+     * @param status  要更新的状态
+     */
+    void updateStatusByOrderNo(String orderNo, String status);
 }

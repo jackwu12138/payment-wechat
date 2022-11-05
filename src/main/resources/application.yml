@@ -75,7 +75,7 @@ wxpay:
     # 微信服务器地址
     domain: https://api.mch.weixin.qq.com
     # 接收结果通知地址
-    notify-domain: https://4326-123-139-179-245.jp.ngrok.io
+    notify-domain: https://7f15-123-139-165-92.jp.ngrok.io
 
 logging:
     level:

@@ -21,7 +21,7 @@ public class ProductResponseVO {
      * 商品编号
      */
     @ApiModelProperty("商品编号")
-    private String id;
+    private Long id;
 
     /**
      * 商品名称

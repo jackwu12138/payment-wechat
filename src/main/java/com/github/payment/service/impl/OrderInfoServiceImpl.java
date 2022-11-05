@@ -1,17 +1,23 @@
 package com.github.payment.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.common.core.constants.OrderStatusConstants;
 import com.github.common.core.util.NoUtil;
+import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.payment.databject.OrderInfoDO;
 import com.github.payment.databject.ProductDO;
 import com.github.payment.mapper.OrderInfoMapper;
 import com.github.payment.service.OrderInfoService;
+import com.github.payment.service.PaymentInfoService;
 import com.github.payment.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.common.core.util.ExceptionUtil.exception;
 
@@ -28,6 +34,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private final OrderInfoMapper baseMapper;
 
     private final ProductService productService;
+
+    private final PaymentInfoService paymentInfoService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public OrderInfoDO createOrderInfoById(Long productId) {
@@ -53,6 +63,52 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 .set(OrderInfoDO::getCodeUrl, orderInfo.getCodeUrl())
                 .eq(OrderInfoDO::getOrderNo, orderInfo.getOrderNo());
         baseMapper.update(orderInfo, wrapper);
+    }
+
+    @Override
+    public void updateOrderWhenPaymentSuccess(NativeQueryResponseDTO encryptedData) {
+        if (lock.tryLock()) {
+            try {
+                // 判断订单状态
+                String status = getOrderStatus(encryptedData.getOutTradeNo());
+                log.info("订单状态: [{}]", status);
+                if (ObjectUtil.isNull(status) || !StrUtil.equals(status, OrderStatusConstants.NOTPAY)) {
+                    return;
+                }
+                // 更新订单状态
+                String orderNo = encryptedData.getOutTradeNo();
+                updateStatusByOrderNo(orderNo, OrderStatusConstants.SUCCESS);
+                // 记录支付日志
+                paymentInfoService.createPaymentInfo(encryptedData);
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+
+    @Override
+    public void updateStatusByOrderNo(String orderNo, String status) {
+        log.info("更新订单状态 ---> 订单号:[{}], 订单状态:[{}]", orderNo, status);
+        LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO::getOrderNo, orderNo);
+        OrderInfoDO entity = OrderInfoDO.builder().orderStatus(status).build();
+        baseMapper.update(entity, wrapper);
+    }
+
+    /**
+     * 根据订单号获取订单状态
+     *
+     * @param orderNo 订单号
+     * @return 订单状态
+     */
+    private String getOrderStatus(String orderNo) {
+        LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO::getOrderNo, orderNo);
+        OrderInfoDO orderInfo = baseMapper.selectOne(wrapper);
+        if (ObjectUtil.isNull(orderInfo)) {
+            return null;
+        }
+        return orderInfo.getOrderStatus();
     }
 
     /**
