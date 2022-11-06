@@ -2,19 +2,20 @@ package com.github.payment.task;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.thread.ExecutorBuilder;
 import com.github.common.core.constants.OrderStatusConstants;
 import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.dependences.wechat.core.constants.wechat.WxTradeStateConstants;
 import com.github.dependences.wechat.core.service.NativePayService;
 import com.github.payment.databject.OrderInfoDO;
 import com.github.payment.service.OrderInfoService;
-import com.github.payment.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author jackwu
@@ -26,7 +27,6 @@ public class PaymentTask {
 
     private final OrderInfoService orderInfoService;
 
-    private final PaymentService paymentService;
 
     private final NativePayService nativePayService;
 
@@ -45,7 +45,11 @@ public class PaymentTask {
 
     private void orderConfirm(List<OrderInfoDO> orderList) {
         log.warn("要进行查单的订单列表: 共计[{}]条", orderList.size());
-        orderList.forEach(order -> {
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(orderList.size())
+                .setMaxPoolSize(orderList.size())
+                .build();
+        orderList.forEach(order -> executor.submit(() -> {
             log.warn(">>> {}", order);
             String orderNo = order.getOrderNo();
             // 查询订单信息
@@ -65,6 +69,17 @@ public class PaymentTask {
                 // 更新本地订单状态
                 orderInfoService.updateStatusByOrderNo(orderNo, OrderStatusConstants.CLOSED);
             }
-        });
+            if (WxTradeStateConstants.CLOSED.equals(tradeState)) {
+                log.info("核实订单[{}]已关闭", orderNo);
+                // 更新本地订单状态
+                orderInfoService.updateStatusByOrderNo(orderNo, OrderStatusConstants.CLOSED);
+            }
+        }));
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {}
+        }
     }
 }
