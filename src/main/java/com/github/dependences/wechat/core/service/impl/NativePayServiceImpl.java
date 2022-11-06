@@ -7,14 +7,18 @@ import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
 import com.github.common.core.util.JsonUtil;
 import com.github.dependences.wechat.config.WxPayProperties;
+import com.github.dependences.wechat.core.api.NativeCloseRequestDTO;
 import com.github.dependences.wechat.core.api.NativePayRequestDTO;
 import com.github.dependences.wechat.core.api.NativePayResponseDTO;
+import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
+import com.github.dependences.wechat.core.constants.wechat.WxApiConstants;
 import com.github.dependences.wechat.core.service.NativePayService;
 import com.github.dependences.wechat.core.util.WechatPay2ValidatorForRequest;
 import com.wechat.pay.contrib.apache.httpclient.auth.Verifier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,6 +30,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static com.github.dependences.wechat.core.constants.wechat.WxApiConstants.NATIVE_PAY;
+import static com.github.dependences.wechat.core.constants.wechat.WxApiConstants.ORDER_QUERY_BY_NO;
 
 /**
  * native 支付的 service 实现类
@@ -67,6 +72,40 @@ public class NativePayServiceImpl implements NativePayService {
     }
 
     @Override
+    public void closePaymentOrder(String orderNo) {
+        String url = properties.getDomain() +
+                StrUtil.format(WxApiConstants.CLOSE_ORDER_BY_NO, orderNo);
+        String params = JSONUtil.toJsonStr(new NativeCloseRequestDTO(properties.getMchId()));
+        try (CloseableHttpResponse response = doPost(url, params)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == HttpStatus.HTTP_OK || statusCode == HttpStatus.HTTP_NO_CONTENT) {
+                log.debug("关闭订单成功! 响应码:'{}'", statusCode);
+            } else {
+                log.error("关闭订单失败! 响应码:'{}'", statusCode);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public NativeQueryResponseDTO queryPaymentOrder(String orderNo) {
+        String url = properties.getDomain()
+                + StrUtil.format(ORDER_QUERY_BY_NO, orderNo)
+                + "?mchid="
+                + properties.getMchId();
+
+        try (CloseableHttpResponse response = doGet(url)) {
+            String body = EntityUtils.toString(response.getEntity());
+            NativeQueryResponseDTO queryResponse = JSONUtil.toBean(body, NativeQueryResponseDTO.class);
+            log.info("查单结果: {}", body);
+            return queryResponse;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public boolean isRequestValidate(String body, String requestId, HttpServletRequest request) {
         WechatPay2ValidatorForRequest validator =
                 new WechatPay2ValidatorForRequest(verifier, body, requestId);
@@ -100,6 +139,26 @@ public class NativePayServiceImpl implements NativePayService {
 
         try {
             return wxPayHttpClient.execute(httpPost);
+        } catch (IOException e) {
+            log.error("请求微信接口出错", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * get 方式请求微信的接口
+     *
+     * @param url 请求的地址
+     * @return 响应的信息
+     */
+    private CloseableHttpResponse doGet(String url) {
+        log.debug("请求方式: [get], 请求地址: [{}]", url);
+        HttpGet httpGet = new HttpGet(url);
+
+        httpGet.setHeader(Header.ACCEPT.getValue(), ContentType.JSON.getValue());
+
+        try {
+            return wxPayHttpClient.execute(httpGet);
         } catch (IOException e) {
             log.error("请求微信接口出错", e);
             throw new RuntimeException(e);

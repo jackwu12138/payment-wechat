@@ -39,4 +39,12 @@ public interface OrderInfoService {
      * @param status  要更新的状态
      */
     void updateStatusByOrderNo(String orderNo, String status);
+
+    /**
+     * 根据订单号查询订单
+     *
+     * @param orderNo 要查询的订单号
+     * @return 查询到的订单
+     */
+    OrderInfoDO getOrderByOrderNo(String orderNo);
 }

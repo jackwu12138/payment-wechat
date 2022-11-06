@@ -95,6 +95,13 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         baseMapper.update(entity, wrapper);
     }
 
+    @Override
+    public OrderInfoDO getOrderByOrderNo(String orderNo) {
+        LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO::getOrderNo, orderNo);
+        return baseMapper.selectOne(wrapper);
+    }
+
     /**
      * 根据订单号获取订单状态
      *
