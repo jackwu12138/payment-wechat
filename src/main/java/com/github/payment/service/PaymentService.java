@@ -1,7 +1,6 @@
 package com.github.payment.service;
 
 import com.github.dependences.wechat.core.api.NativePayNotifyResponseDTO;
-import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.payment.controller.payment.vo.PrepaymentResponseVO;
 import org.springframework.http.ResponseEntity;
 
@@ -36,12 +35,4 @@ public interface PaymentService {
      * @param orderNo 要取消的订单编号
      */
     void cancelOrder(String orderNo);
-
-    /**
-     * 查询订单
-     *
-     * @param orderNo 要查询的订单编号
-     * @return 查询到的订单信息
-     */
-    NativeQueryResponseDTO queryOrder(String orderNo);
 }

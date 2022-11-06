@@ -2,7 +2,6 @@ package com.github.payment.controller.payment;
 
 import com.github.common.core.vo.CommonResult;
 import com.github.dependences.wechat.core.api.NativePayNotifyResponseDTO;
-import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.payment.controller.payment.vo.PrepaymentResponseVO;
 import com.github.payment.service.PaymentService;
 import io.swagger.annotations.Api;
@@ -10,7 +9,10 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -50,11 +52,5 @@ public class PaymentController {
     public CommonResult<Boolean> cancelOrder(@PathVariable String orderNo) {
         service.cancelOrder(orderNo);
         return success(true);
-    }
-
-    @GetMapping("/query/{orderNo}")
-    @ApiOperation("查询订单 [测试]")
-    public CommonResult<NativeQueryResponseDTO> queryOrder(@PathVariable String orderNo) {
-        return success(service.queryOrder(orderNo));
     }
 }

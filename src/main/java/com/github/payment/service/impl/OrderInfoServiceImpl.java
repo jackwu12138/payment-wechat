@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.common.core.util.ExceptionUtil.exception;
@@ -66,20 +69,20 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     @Override
-    public void updateOrderWhenPaymentSuccess(NativeQueryResponseDTO encryptedData) {
+    public void updateOrderWhenPaymentSuccess(NativeQueryResponseDTO responseData) {
         if (lock.tryLock()) {
             try {
                 // 判断订单状态
-                String status = getOrderStatus(encryptedData.getOutTradeNo());
+                String status = getOrderStatus(responseData.getOutTradeNo());
                 log.info("订单状态: [{}]", status);
                 if (ObjectUtil.isNull(status) || !StrUtil.equals(status, OrderStatusConstants.NOTPAY)) {
                     return;
                 }
                 // 更新订单状态
-                String orderNo = encryptedData.getOutTradeNo();
+                String orderNo = responseData.getOutTradeNo();
                 updateStatusByOrderNo(orderNo, OrderStatusConstants.SUCCESS);
                 // 记录支付日志
-                paymentInfoService.createPaymentInfo(encryptedData);
+                paymentInfoService.createPaymentInfo(responseData);
             } finally {
                 lock.unlock();
             }
@@ -100,6 +103,15 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
                 .eq(OrderInfoDO::getOrderNo, orderNo);
         return baseMapper.selectOne(wrapper);
+    }
+
+    @Override
+    public List<OrderInfoDO> getNoPayOrderByDuration(int timeout) {
+        Instant now = Instant.now().minus(Duration.ofMinutes(timeout));
+        LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO::getOrderStatus, OrderStatusConstants.NOTPAY)
+                .le(OrderInfoDO::getCreateTime, now);
+        return baseMapper.selectList(wrapper);
     }
 
     /**

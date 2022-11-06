@@ -3,6 +3,8 @@ package com.github.payment.service;
 import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
 import com.github.payment.databject.OrderInfoDO;
 
+import java.util.List;
+
 /**
  * 订单信息的 service 接口
  *
@@ -47,4 +49,12 @@ public interface OrderInfoService {
      * @return 查询到的订单
      */
     OrderInfoDO getOrderByOrderNo(String orderNo);
+
+    /**
+     * 找到所有超过超时时间未支付的订单
+     *
+     * @param timeout 超时时间
+     * @return 所有找到的订单
+     */
+    List<OrderInfoDO> getNoPayOrderByDuration(int timeout);
 }

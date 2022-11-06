@@ -95,12 +95,6 @@ public class PaymentServiceImpl implements PaymentService {
         orderInfoService.updateStatusByOrderNo(orderNo, OrderStatusConstants.CANCEL);
     }
 
-    @Override
-    public NativeQueryResponseDTO queryOrder(String orderNo) {
-        log.info(">>> 发起 native 查询订单请求 <<<");
-        return nativePayService.queryPaymentOrder(orderNo);
-    }
-
     /**
      * 对订单信息进行处理
      *
