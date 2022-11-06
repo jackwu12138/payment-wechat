@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.common.core.constants.OrderStatusConstants;
 import com.github.common.core.util.NoUtil;
 import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
+import com.github.payment.controller.order.vo.OrderInfoResponseVO;
+import com.github.payment.convert.OrderInfoConvert;
 import com.github.payment.databject.OrderInfoDO;
 import com.github.payment.databject.ProductDO;
 import com.github.payment.mapper.OrderInfoMapper;
@@ -39,6 +41,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private final ProductService productService;
 
     private final PaymentInfoService paymentInfoService;
+
+    private final OrderInfoConvert convertor;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -112,6 +116,23 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 .eq(OrderInfoDO::getOrderStatus, OrderStatusConstants.NOTPAY)
                 .le(OrderInfoDO::getCreateTime, now);
         return baseMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<OrderInfoResponseVO> getOrderInfoList() {
+        List<OrderInfoDO> orderInfoList = baseMapper.selectList(null);
+        return convertor.convertList(orderInfoList);
+    }
+
+    @Override
+    public String getOrderStatusByOrderNo(String orderNo) {
+        LambdaQueryWrapper<OrderInfoDO> wrapper = new LambdaQueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO::getOrderNo, orderNo);
+        OrderInfoDO orderInfo = baseMapper.selectOne(wrapper);
+        if (ObjectUtil.isNull(orderInfo)) {
+            throw exception("订单号不存在!");
+        }
+        return orderInfo.getOrderStatus();
     }
 
     /**

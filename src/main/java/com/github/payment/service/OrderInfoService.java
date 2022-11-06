@@ -1,6 +1,7 @@
 package com.github.payment.service;
 
 import com.github.dependences.wechat.core.api.NativeQueryResponseDTO;
+import com.github.payment.controller.order.vo.OrderInfoResponseVO;
 import com.github.payment.databject.OrderInfoDO;
 
 import java.util.List;
@@ -57,4 +58,19 @@ public interface OrderInfoService {
      * @return 所有找到的订单
      */
     List<OrderInfoDO> getNoPayOrderByDuration(int timeout);
+
+    /**
+     * 获取订单列表
+     *
+     * @return 所有的订单列表
+     */
+    List<OrderInfoResponseVO> getOrderInfoList();
+
+    /**
+     * 根据订单号获取订单状态
+     *
+     * @param orderNo 订单号
+     * @return 查询到的订单状态
+     */
+    String getOrderStatusByOrderNo(String orderNo);
 }
