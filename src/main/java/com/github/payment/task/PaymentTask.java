@@ -36,7 +36,7 @@ public class PaymentTask {
         TimeInterval timer = DateUtil.timer();
 
         List<OrderInfoDO> orderList = orderInfoService.getNoPayOrderByDuration(5);
-        if (orderList != null) {
+        if (orderList != null && orderList.size() > 0) {
             orderConfirm(orderList);
         }
 
